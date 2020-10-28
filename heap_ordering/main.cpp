@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <vector>
 
 namespace CP {
 
@@ -129,34 +130,51 @@ class priority_queue
 class student {
 public:
   std::string name;
-  int score;
+  std::vector<int> scores;
 
   //constructor
-  student() : name(), score() { }
-  student(std::string aname,int ascore) : name(aname), score(ascore) { }
+  student() : name(), scores() { }
+  student(const std::string &a_name,const std::vector<int> &a_score) : name(a_name), scores(a_score) { }
 
-  bool operator<(const student &s) {
-    if(score == s.score) return name < s.name;
-    return score < s.score;
+  int sum_score() const {
+    int sum = 0;
+    for (auto &v : scores)
+      sum += v;
+    return sum;
   }
 
-};
-CP::priority_queue<student> pq;
 
-//----------------------------- MAKE YOUR CHANGE ABOVE THIS LINE ONLY --------------------
+};
+
+class Order {
+  public:
+    bool operator()(const student &lhs, const student &rhs) {
+      if(lhs.sum_score() == rhs.sum_score()) return lhs.name > rhs.name;
+      return lhs.sum_score() < rhs.sum_score();
+    }
+};
+CP::priority_queue<student, Order> pq;
+//----------------------------- MAKE YOUR CHANGE BOVE THIS LINE ONLY --------------------
+
 int main(int argc, char *argv[]) {
   int N,K;
   std::cin >> N >> K;
   while (N--) {
-    std::string a;
-    int b;
-    std::cin >> a >> b;
-    pq.push(student(a,b));
+    std::string name;
+    std::vector<int> score;
+    int s,c;
+    std::cin >> name >> s;
+    score.clear();
+    while (s--) {
+      std::cin >> c;
+      score.push_back(c);
+    }
+    pq.push(student(name,score));
   }
 
   while (K--) {
     student tmp = pq.top();
     pq.pop();
-    std::cout << tmp.name << " " << tmp.score << std::endl;
+    std::cout << tmp.name << " " << tmp.sum_score() << std::endl;
   }
 }
